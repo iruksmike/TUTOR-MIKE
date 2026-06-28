@@ -1,0 +1,6 @@
+{
+  "name": "Tutor Mike Portfolio",
+  "description": "Professional portfolio and tutor services for Tutor Mike.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
