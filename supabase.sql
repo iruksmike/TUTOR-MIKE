@@ -43,36 +43,8 @@ CREATE TABLE IF NOT EXISTS public.portfolio_projects (
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ==========================================
 
--- Enable RLS on all tables
-ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.testimonials ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.portfolio_projects ENABLE ROW LEVEL SECURITY;
+-- Disable RLS on all tables so the custom admin dashboard can read/write data
+ALTER TABLE public.leads DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.testimonials DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.portfolio_projects DISABLE ROW LEVEL SECURITY;
 
--- LEADS POLICIES
--- Allow anyone (public) to insert new leads via the website form
-CREATE POLICY "Allow public insert" ON public.leads
-    FOR INSERT WITH CHECK (true);
-
--- Only authenticated users (you, logged into Supabase Auth) can view, update or delete leads
-CREATE POLICY "Allow authenticated read" ON public.leads
-    FOR SELECT USING (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated update" ON public.leads
-    FOR UPDATE USING (auth.role() = 'authenticated');
-CREATE POLICY "Allow authenticated delete" ON public.leads
-    FOR DELETE USING (auth.role() = 'authenticated');
-
--- TESTIMONIALS POLICIES
--- Allow public to ONLY see approved testimonials
-CREATE POLICY "Allow public read approved" ON public.testimonials
-    FOR SELECT USING (status = 'approved');
--- Admins have full access
-CREATE POLICY "Allow authenticated all access" ON public.testimonials
-    FOR ALL USING (auth.role() = 'authenticated');
-
--- PORTFOLIO POLICIES
--- Allow public to see portfolio items
-CREATE POLICY "Allow public read" ON public.portfolio_projects
-    FOR SELECT USING (true);
--- Admins have full access
-CREATE POLICY "Allow authenticated all access" ON public.portfolio_projects
-    FOR ALL USING (auth.role() = 'authenticated');

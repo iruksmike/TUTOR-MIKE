@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react';
-import { LayoutDashboard, Users, MessageSquare, Image as ImageIcon, Settings, LogOut, Plus, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquare, Image as ImageIcon, Settings, LogOut, Plus, Trash2, CheckCircle, XCircle, Edit2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 // This is a CMS interface connected to Supabase
@@ -18,6 +18,7 @@ export default function Admin() {
   // Form states for adding new items
   const [showAddTestimonial, setShowAddTestimonial] = useState(false);
   const [showAddPortfolio, setShowAddPortfolio] = useState(false);
+  const [editingTestimonial, setEditingTestimonial] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAuthenticated && supabase) {
@@ -30,7 +31,8 @@ export default function Admin() {
   const fetchLeads = async () => {
     if (!supabase) return;
     setIsLoading(true);
-    const { data } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
+    if (error) console.error("Error fetching leads:", error.message);
     if (data) setLeads(data);
     setIsLoading(false);
   };
@@ -38,7 +40,8 @@ export default function Admin() {
   const fetchTestimonials = async () => {
     if (!supabase) return;
     setIsLoading(true);
-    const { data } = await supabase.from('testimonials').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('testimonials').select('*').order('created_at', { ascending: false });
+    if (error) console.error("Error fetching testimonials:", error.message);
     if (data) setTestimonials(data);
     setIsLoading(false);
   };
@@ -46,7 +49,8 @@ export default function Admin() {
   const fetchPortfolio = async () => {
     if (!supabase) return;
     setIsLoading(true);
-    const { data } = await supabase.from('portfolio_projects').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('portfolio_projects').select('*').order('created_at', { ascending: false });
+    if (error) console.error("Error fetching portfolio:", error.message);
     if (data) setPortfolio(data);
     setIsLoading(false);
   };
@@ -92,6 +96,20 @@ export default function Admin() {
       status: 'approved'
     }]);
     setShowAddTestimonial(false);
+    fetchTestimonials();
+  };
+
+  const handleUpdateTestimonial = async (e: FormEvent<HTMLFormElement>, id: string) => {
+    e.preventDefault();
+    if (!supabase) return;
+    const formData = new FormData(e.currentTarget);
+    await supabase.from('testimonials').update({
+      parent_name: formData.get('parent_name'),
+      location: formData.get('location'),
+      content: formData.get('content'),
+      image_url: formData.get('image_url') || null,
+    }).eq('id', id);
+    setEditingTestimonial(null);
     fetchTestimonials();
   };
 
@@ -263,21 +281,39 @@ export default function Admin() {
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               {testimonials.map(t => (
                 <div key={t.id} className="border border-gray-100 rounded-xl p-4 shadow-sm flex flex-col">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="font-bold text-navy">{t.parent_name}</h4>
-                      <p className="text-xs text-gray-500">{t.location}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => toggleTestimonialStatus(t.id, t.status)} className="text-sm">
-                        {t.status === 'approved' ? <CheckCircle className="w-5 h-5 text-green-500" /> : <XCircle className="w-5 h-5 text-gray-300" />}
-                      </button>
-                      <button onClick={() => deleteTestimonial(t.id)} className="text-gray-400 hover:text-red-500">
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600 flex-1 line-clamp-3">{t.content}</p>
+                  {editingTestimonial === t.id ? (
+                    <form onSubmit={(e) => handleUpdateTestimonial(e, t.id)} className="flex flex-col h-full space-y-3">
+                      <input required name="parent_name" defaultValue={t.parent_name} placeholder="Parent Name" className="w-full px-3 py-1.5 border rounded text-sm" />
+                      <input required name="location" defaultValue={t.location} placeholder="Location" className="w-full px-3 py-1.5 border rounded text-sm" />
+                      <input name="image_url" defaultValue={t.image_url} placeholder="Image URL (Optional)" className="w-full px-3 py-1.5 border rounded text-sm" />
+                      <textarea required name="content" defaultValue={t.content} placeholder="Testimonial Text" rows={4} className="w-full px-3 py-1.5 border rounded text-sm flex-1" />
+                      <div className="flex gap-2">
+                        <button type="submit" className="bg-navy hover:bg-navy-light text-white px-3 py-1.5 rounded text-sm transition-colors flex-1">Save</button>
+                        <button type="button" onClick={() => setEditingTestimonial(null)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-sm transition-colors">Cancel</button>
+                      </div>
+                    </form>
+                  ) : (
+                    <>
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-bold text-navy">{t.parent_name}</h4>
+                          <p className="text-xs text-gray-500">{t.location}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => setEditingTestimonial(t.id)} className="text-gray-400 hover:text-navy" title="Edit">
+                            <Edit2 className="w-5 h-5" />
+                          </button>
+                          <button onClick={() => toggleTestimonialStatus(t.id, t.status)} className="text-sm" title={t.status === 'approved' ? 'Unpublish' : 'Publish'}>
+                            {t.status === 'approved' ? <CheckCircle className="w-5 h-5 text-green-500" /> : <XCircle className="w-5 h-5 text-gray-300" />}
+                          </button>
+                          <button onClick={() => deleteTestimonial(t.id)} className="text-gray-400 hover:text-red-500" title="Delete">
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 flex-1 line-clamp-3">{t.content}</p>
+                    </>
+                  )}
                 </div>
               ))}
               {testimonials.length === 0 && !isLoading && (

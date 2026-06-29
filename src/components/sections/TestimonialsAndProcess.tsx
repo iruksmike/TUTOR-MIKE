@@ -2,33 +2,10 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, Quote, Star } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import maryannImg from '../../assets/images/maryann_portrait_1782669934165.jpg';
-import tolaniImg from '../../assets/images/tolani_portrait_1782669947947.jpg';
-
-const fallbackTestimonials = [
-  {
-    name: "Mrs. Maryann",
-    location: "Ireland",
-    text: "He taught my daughter, Elaine, Mathematics and Science from Year 8 through Year 9, during which she consistently achieved A grades in her examinations. He also tutored my second daughter, Aisling, in Mathematics from Year 11 through Year 12 in preparation for her GCSE examinations. Through his patient guidance, structured lessons, and personalized approach, she achieved an impressive score of 82% in her Mathematics exam. Tutor Mike has a remarkable ability to simplify complex concepts, build students' confidence, and help them achieve academic success. I highly recommend him to any parent seeking a dedicated and effective Mathematics and Science tutor.",
-    image: maryannImg
-  },
-  {
-    name: "Mrs. Tolani",
-    location: "London, United Kingdom",
-    text: "Tutor Mike began working with my son, Ope, in Year 6 to prepare him for his SAT Mathematics examination. Through his engaging teaching style, personalized support, and strong subject knowledge, Ope achieved an impressive score of 78% in his Maths exam. The progress and confidence my son gained under his guidance convinced me to continue with his tutoring services beyond the SATs. Since then, he has remained Ope's private Mathematics tutor through Year 7 and into Year 8, where he continues to provide exceptional academic support and mentorship. Tutor Mike is reliable, patient, and genuinely invested in his students' success. I highly recommend him to any parent looking for a skilled tutor who can help their child excel in Mathematics.",
-    image: tolaniImg
-  },
-  {
-    name: "Mr. Temple",
-    location: "Ireland",
-    text: "When my daughter, Jasmine, was in Year 9, she was finding Mathematics extremely challenging and lacked confidence in the subject. Seeking additional support, I engaged Tutor Mike to help her improve her understanding and performance. From the very beginning, he demonstrated exceptional patience, expertise, and a genuine commitment to her success. Under his guidance, Jasmine steadily improved and began achieving average scores of 60% and above in Mathematics. Her growing confidence and competence enabled her to successfully complete her state examinations and progress to higher-level Mathematics classes alongside senior students. What has impressed me most is the consistency of his support. Tutor Mike has remained Jasmine's private Mathematics tutor from Year 9 through to her final year (Year 12), helping her navigate every stage of her academic journey. I highly recommend Tutor Mike to any parent seeking a dedicated tutor who can help students overcome challenges, build confidence, and achieve meaningful academic progress.",
-    image: "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=400&h=400&fit=crop"
-  }
-];
 
 export function Testimonials() {
   const [current, setCurrent] = useState(0);
-  const [testimonials, setTestimonials] = useState<any[]>(fallbackTestimonials);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchTestimonials = async () => {
@@ -60,6 +37,10 @@ export function Testimonials() {
 
   const next = () => setCurrent((c) => (c === testimonials.length - 1 ? 0 : c + 1));
   const prev = () => setCurrent((c) => (c === 0 ? testimonials.length - 1 : c - 1));
+
+  if (testimonials.length === 0) {
+    return null; // Or a loading skeleton
+  }
 
   return (
     <section id="testimonials" className="py-24 bg-light-grey">
