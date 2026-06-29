@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-let rawUrl = (import.meta as any).env.VITE_SUPABASE_URL || 'https://mnlstxgutxeqziegybhf.supabase.co';
-let rawKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ubHN0eGd1dHhlcXppZWd5YmhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMjAxNTcsImV4cCI6MjA5NzY5NjE1N30.C130ncSs5Jv4F4iAAkDND-0pTNOW6FEm8c8lZS1xZ5I';
+let rawUrl = (import.meta as any).env.VITE_SUPABASE_URL || 'https://rgqbelwbihcdvcbhnpze.supabase.co';
+let rawKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJncWJlbHdiaWhjZHZjYmhucHplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNTE2NzUsImV4cCI6MjA5NzgyNzY3NX0.SCERd3MmcBkc-V9YBTdsV8KJW3EX_8Q_sehfyS6ekEA';
 
 rawUrl = String(rawUrl).replace(/['"]/g, '').trim();
 // Remove /rest/v1 or /rest/v1/ if the user accidentally included it
